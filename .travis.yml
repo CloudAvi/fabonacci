@@ -1,0 +1,22 @@
+sudo: required
+service:
+  - docker
+
+before_install:
+  - docker build -t avinashraghukumar/fabonacci -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run -e CI=true avinashraghukumar/fabonacci npm run test
+
+after_success:
+  - docker build -t avinashraghukumar/client ./client
+  - docker build -t avinashraghukumar/nginx ./nginx
+  - docker build -t avinashraghukumar/server ./server
+  - docker build -t avinashraghukumar/worker ./worker
+#Log in to the docker CLI
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+# Take those image and push them to docke hub
+  - docker push avinashraghukumar/client
+  - docker push avinashraghukumar/nginx
+  - docker push avinashraghukumar/server
+  - docker push avinashraghukumar/worker
